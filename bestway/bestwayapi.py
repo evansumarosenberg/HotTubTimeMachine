@@ -5,6 +5,7 @@
 """ See: https://docs.gizwits.com/en-us/UserManual/UseOpenAPI.html"""
 
 import urllib.request as request
+from urllib.error import HTTPError
 import time
 import json
 import logging
@@ -25,6 +26,7 @@ HEADERS = {
 }
 GIZWITS_USER_TOKEN = "X-Gizwits-User-token"
 TIMEOUT = 10
+RETRY_DELAY = 30
 
 # -- ----------------------------------------------------------------------- --
 
@@ -116,7 +118,18 @@ class BestwayAPI:
         return controls
 
     def _get(self, path, headers):
-        req = request.Request(f"{self.baseURL}{path}", headers=headers)  # GET
+        opened = False
+        attempts = 5
+        while (not opened) and attempts:
+            try:
+                req = request.Request(f"{self.baseURL}{path}", headers=headers)  # GET
+                opened = True
+            except urllib.error.HTTPError as e:
+                # delay and retry
+                print("HTTP error!")
+                time.sleep(RETRY_DELAY)
+                attempts = attempts - 1
+                if attempts == 0: raise
         resp = request.urlopen(req)
         content = resp.read()
         result = json.loads(content)
