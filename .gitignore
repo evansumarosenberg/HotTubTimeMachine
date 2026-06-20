@@ -1,3 +1,5 @@
 /configuration.json
 /configuration backup.json
 /*.csv
+__pycache__/
+*.py[cod]
