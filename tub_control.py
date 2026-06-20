@@ -21,6 +21,7 @@ from bestway.bestway_user_token import BestwayUserToken
 CFGFILENAME = 'configuration.json'
 GIZWITS_URL = 'https://euapi.gizwits.com'
 STATES      = ['on', 'off']
+BUBBLE_STATES = ['on', 'off', 'low', 'high']
 # parse arguments
 argparser = argparse.ArgumentParser(prog="tub_control.py", description="Hot Tub filter pump control", epilog="with no control arguments [-P, -H, -T] prints current status")
 argparser.add_argument('-c', '--cfgfile', help="location of configuration file; default='configuration.json'")
@@ -28,7 +29,7 @@ argparser.add_argument('-l', '--loglevel', help="logging level: INFO, DEBUG, WAR
 argparser.add_argument('-P', '--pump', choices=STATES, help="set pump 'on' or 'off'")
 argparser.add_argument('-H', '--heat', choices=STATES, help="set heater 'on' or 'off'")
 argparser.add_argument('-T', '--temp', type=int, help="set target temperature")
-argparser.add_argument('-B', '--bubbles', choices=STATES, help="turn bubbles 'on' or 'off'")
+argparser.add_argument('-B', '--bubbles', choices=BUBBLE_STATES, help="set Airjet Massage: 'off', 'low', 'high', or 'on' for high")
 argparser.add_argument('-S', '--schedule', type=int, nargs=2, help="schedule heater: delay, runtime in minutes")
 args = argparser.parse_args()
 
@@ -73,8 +74,8 @@ if args.temp:
     temp = args.temp
     controlling = True
 if args.bubbles:
-    logging.info(f"Turning bubbles {'ON' if args.bubbles == 'on' else 'OFF'}")
-    bubbles = args.bubbles == 'on'
+    bubbles = 'high' if args.bubbles == 'on' else args.bubbles
+    logging.info(f"Setting Airjet Massage to {bubbles}")
     controlling = True
 if args.schedule:
     logging.info(f"Setting schedule: delay={args.schedule[0]} duration={args.schedule[1]}")
@@ -88,11 +89,11 @@ logging.debug(f"Got device: {device}")
 if controlling:
     logging.info("applying controls")
     commands = bestway.bestway_device.BestwayCommand()
-    if pump: commands.set_pump(pump)
-    if heat: commands.set_heat(heat)
-    if temp: commands.set_target_temp(temp)
-    if bubbles: commands.set_bubbles(bubbles)
-    if delay and timer: commands.set_schedule(delay, timer)
+    if pump is not None: commands.set_pump(pump)
+    if heat is not None: commands.set_heat(heat)
+    if temp is not None: commands.set_target_temp(temp)
+    if bubbles is not None: commands.set_bubbles(bubbles)
+    if delay is not None and timer is not None: commands.set_schedule(delay, timer)
     device.send_controls(token, commands)
 
 else:

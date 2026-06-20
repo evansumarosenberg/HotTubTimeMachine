@@ -104,7 +104,7 @@ def send_to_tub(set_pump, set_target_temp, set_start_time, set_time_to_heat):
     commands = bestway_device.BestwayCommand()
     if set_pump is not None: commands.set_pump(set_pump)
     if args.temp: commands.set_target_temp(int(set_target_temp))
-    if set_start_time and set_time_to_heat: commands.set_schedule(set_start_time, set_time_to_heat)
+    if set_start_time is not None and set_time_to_heat is not None: commands.set_schedule(set_start_time, set_time_to_heat)
     device.send_controls(token, commands)
 
 

@@ -15,6 +15,10 @@ import bestway.bestway_exceptions as bestway_exceptions
 AIRJET = 'Airjet'
 AIRJET_V01 = 'Airjet_V01'
 
+BUBBLES_OFF = 'off'
+BUBBLES_LOW = 'low'
+BUBBLES_HIGH = 'high'
+
 # -- ----------------------------------------------------------------------- --
 
 class BestwayDevice:
@@ -131,10 +135,14 @@ class BestwayCommand:
         self.__heat = on
 
     def set_bubbles(self, on):
+        if on is True:
+            on = BUBBLES_HIGH
+        elif on is False:
+            on = BUBBLES_OFF
         self.__bubbles = on
 
     def set_target_temp(self, temp):
-        self__temp = temp
+        self.__temp = temp
 
     def set_schedule(self, delay, duration):
         self.__delay = delay

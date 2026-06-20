@@ -83,11 +83,13 @@ else:
     temp_unit = device_status.get_temp_unit()
     pump_state = device_status.get_pump_is_on()
     heat_state = device_status.get_heat_is_on()
+    bubbles = device_status.get_bubble_level()
     delay = toHoursAndMinutes(device_status.get_timer_delay())
     duration = toHoursAndMinutes(device_status.get_timer_duration())
     print(f"Temperature   : {temp_now}{temp_unit}")
     print(f"Filter pump   : {'ON' if pump_state else 'OFF'}")
     print(f"Heater        : {'ON' if heat_state else 'OFF'}")
+    print(f"Airjet Massage: {bubbles.upper()}")
     print(f"Heat Delay    : {delay if delay else 'OFF'}")
     print(f"Heat Duration : {duration if duration else 'OFF'}")
 

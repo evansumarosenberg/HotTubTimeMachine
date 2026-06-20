@@ -5,6 +5,8 @@ Bestway Device Airjet - implementation of JSON protocol for
 devised by reverse-engineering the JSON data exchanged
 """
 
+import logging
+
 import bestway.bestway_device
 import bestway.bestway_exceptions as bestway_exceptions
 
@@ -43,7 +45,7 @@ class BestwayDeviceAirjet(bestway.bestway_device.BestwayDevice):
     def send_controls(self, token, command):
         pump = command.get_pump()
         heat = command.get_heat()
-        temp = command.get_temp()
+        temp = command.get_target_temp()
         bubbles = command.get_bubbles()
         delay = command.get_delay()
         duration = command.get_duration()
@@ -61,13 +63,14 @@ class BestwayDeviceAirjet(bestway.bestway_device.BestwayDevice):
             logging.info(f"set temperature to {temp}")
             self.__add_control(controls, TEMP_TARGET, temp)
         if bubbles is not None:
-            logging.info(f"turn bubbles {'ON' if bubbles else 'OFF'}")
-            self.__add_control(controls, BUBBLES, BUBBLES_ON if bubbles else BUBBLES_OFF)
+            bubbles_on = bubbles != bestway.bestway_device.BUBBLES_OFF
+            logging.info(f"turn bubbles {'ON' if bubbles_on else 'OFF'}")
+            self.__add_control(controls, BUBBLES, BUBBLES_ON if bubbles_on else BUBBLES_OFF)
         if delay is not None and duration is not None:
-            logging.info(f"schedule heating in {delay} minutes for {timer} minutes")
+            logging.info(f"schedule heating in {delay} minutes for {duration} minutes")
             self.__add_control(controls, TIMER_DELAY, delay)
             self.__add_control(controls, TIMER_DURN, duration)
-        elif delay is not None or timer is not None:
+        elif delay is not None or duration is not None:
             raise bestway_exceptions.InvalidArgument("Must specify delay and timer together")
         logging.debug(f"controls: {controls}")
 
@@ -125,7 +128,13 @@ class BestwayStatusAirjet(bestway.bestway_device.BestwayStatus):
 
     def get_bubble_level(self):
         raw_status = self._get_device_data()
-        raise NotImplemented()
+        if BUBBLES in raw_status:
+            if raw_status[BUBBLES] == BUBBLES_ON:
+                return bestway.bestway_device.BUBBLES_HIGH
+            else:
+                return bestway.bestway_device.BUBBLES_OFF
+        else:
+            raise bestway_exceptions.UnsupportedDevice()
 
     def get_timer_duration(self):
         raw_status = self._get_device_data()

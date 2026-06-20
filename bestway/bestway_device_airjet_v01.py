@@ -25,6 +25,10 @@ PUMP_STATE_OFF = 0
 HEAT_STATE = 'heat'
 HEAT_STATE_ON = 3
 HEAT_STATE_OFF = 0
+BUBBLES = 'wave'
+BUBBLES_LOW = 51
+BUBBLES_HIGH = 100
+BUBBLES_OFF = 0
 TIMER_DURN = 'word1'
 TIMER_DELAY = 'word0'
 TIMER_STATE = 'word2'
@@ -79,8 +83,8 @@ class BestwayDeviceAirjet_V01(bestway.bestway_device.BestwayDevice):
             self.__add_control(controls, TEMP_TARGET, temp)
             switches_set = True
         if bubbles is not None:
-            logging.debug(f"turn bubbles {'ON' if bubbles else 'OFF'}")
-            self.__add_control(controls, BUBBLES, BUBBLES_ON if bubbles else BUBBLES_OFF)
+            logging.debug(f"set Airjet Massage to {bubbles}")
+            self.__add_control(controls, BUBBLES, self.__get_bubble_value(bubbles))
             switches_set = True
 
         if switches_set:
@@ -102,6 +106,16 @@ class BestwayDeviceAirjet_V01(bestway.bestway_device.BestwayDevice):
             self._get_api().send_controls(token, self._get_device_id(), controls)
         elif delay is not None or duration is not None:
             raise bestway_exceptions.InvalidArgument("Must specify delay and timer together")
+
+    def __get_bubble_value(self, bubbles):
+        if bubbles == bestway.bestway_device.BUBBLES_OFF:
+            return BUBBLES_OFF
+        elif bubbles == bestway.bestway_device.BUBBLES_LOW:
+            return BUBBLES_LOW
+        elif bubbles == bestway.bestway_device.BUBBLES_HIGH:
+            return BUBBLES_HIGH
+        else:
+            raise bestway_exceptions.InvalidArgument(f"Unsupported Airjet Massage level: {bubbles}")
 
 
 # -- ----------------------------------------------------------------------- --
@@ -149,6 +163,18 @@ class BestwayStatusAirjet_V01(bestway.bestway_device.BestwayStatus):
                 return True
             else:
                 return False
+        else:
+            raise bestway_exceptions.UnsupportedDevice()
+
+    def get_bubble_level(self):
+        raw_status = self._get_device_data()
+        if BUBBLES in raw_status:
+            if raw_status[BUBBLES] == BUBBLES_HIGH:
+                return bestway.bestway_device.BUBBLES_HIGH
+            elif raw_status[BUBBLES] == BUBBLES_LOW:
+                return bestway.bestway_device.BUBBLES_LOW
+            else:
+                return bestway.bestway_device.BUBBLES_OFF
         else:
             raise bestway_exceptions.UnsupportedDevice()
 
