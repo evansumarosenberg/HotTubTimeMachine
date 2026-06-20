@@ -1,5 +1,11 @@
 {
   "username": "...",
   "password": "...",
-  "did": "zuxSEYH2KcJegT6rpTAkgd"
+  "gizwits_url": "https://usapi.gizwits.com",
+  "did": "",
+  "token": {
+    "user_id": "",
+    "user_token": "",
+    "expiry": 0
+  }
 }

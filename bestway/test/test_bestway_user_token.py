@@ -20,3 +20,9 @@ class TestBestwayUserToken(TestCase):
         data = {"user_id": "uid", "user_token": "tkn", "expiry": 99}
         token = BestwayUserToken.from_values("uid", "tkn", 99)
         self.assertTrue(data == token.getData())
+
+    def test_empty_token_defaults_to_expired(self):
+        token = BestwayUserToken({})
+        self.assertEqual(token.user_id, "")
+        self.assertEqual(token.user_token, "")
+        self.assertEqual(token.expiry, 0)

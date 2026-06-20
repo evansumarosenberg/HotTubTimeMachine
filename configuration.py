@@ -3,7 +3,13 @@ import json
 DEFAULT_CONFIG = {
     "username": "unset",
     "password": "NONE",
-    "token": {},
+    "gizwits_url": "https://usapi.gizwits.com",
+    "did": "",
+    "token": {
+        "user_id": "",
+        "user_token": "",
+        "expiry": 0,
+    },
 }
 
 class Configuration:

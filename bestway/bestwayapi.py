@@ -66,6 +66,10 @@ class BestwayAPI:
         else:
             return []
 
+    def get_devices(self, token):
+        """Retrieve list of configured devices."""
+        return self._get_devices(token)
+
     def get_device_raw_info(self, token, device_id):
         """retrieve current device status"""
         if self.is_token_expired(token):

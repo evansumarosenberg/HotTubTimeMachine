@@ -11,10 +11,12 @@ class BestwayUserToken:
     user_token: str
     expiry: int
 
-    def __init__(self, d:dict):
-        self.user_id = d["user_id"]
-        self.user_token = d["user_token"]
-        self.expiry = d["expiry"]
+    def __init__(self, d:dict=None):
+        if d is None:
+            d = {}
+        self.user_id = d.get("user_id", "")
+        self.user_token = d.get("user_token", "")
+        self.expiry = d.get("expiry", 0)
 
     @classmethod
     def from_values(self, uid:str, token:str, expiry:int):
